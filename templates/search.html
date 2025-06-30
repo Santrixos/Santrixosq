@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Search - THE STYLE OF MUSIC{% endblock %}
+
+{% block content %}
+<div class="search-page">
+    <!-- Search Header -->
+    <div class="search-header">
+        <h1><i class="fas fa-search me-2"></i>Search Music</h1>
+        <p class="text-muted">Find your favorite songs, artists, and albums</p>
+    </div>
+
+    <!-- Search Form (Mobile) -->
+    <div class="mobile-search d-md-none mb-4">
+        <form action="{{ url_for('search') }}" method="GET">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" name="q" class="form-control" placeholder="Search for music..." 
+                       value="{{ query }}" autofocus>
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+
+    {% if query %}
+    <!-- Search Results -->
+    <div class="search-results">
+        <div class="results-header">
+            <h3>Search results for "<span class="text-primary">{{ query }}</span>"</h3>
+            <p class="text-muted">{{ results|length }} results found</p>
+        </div>
+
+        {% if results %}
+        <!-- Filter Options -->
+        <div class="filter-options mb-4">
+            <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="filter" id="all" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="all">All</label>
+
+                <input type="radio" class="btn-check" name="filter" id="videos" autocomplete="off">
+                <label class="btn btn-outline-primary" for="videos">Videos</label>
+
+                <input type="radio" class="btn-check" name="filter" id="channels" autocomplete="off">
+                <label class="btn btn-outline-primary" for="channels">Artists</label>
+            </div>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="results-grid">
+            {% for track in results %}
+            <div class="result-item" data-video-id="{{ track.id }}">
+                <div class="result-image">
+                    <img src="{{ track.thumbnail }}" alt="{{ track.title }}" loading="lazy">
+                    <div class="play-overlay">
+                        <button class="play-btn" onclick="playTrack('{{ track.id }}', '{{ track.title }}', '{{ track.artist }}')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                    <div class="duration-badge">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                </div>
+                
+                <div class="result-content">
+                    <h5 class="result-title">{{ track.title[:60] }}{% if track.title|length > 60 %}...{% endif %}</h5>
+                    <p class="result-artist">
+                        <i class="fas fa-user-music me-1"></i>
+                        {{ track.artist }}
+                    </p>
+                    <p class="result-description">{{ track.description[:100] }}{% if track.description|length > 100 %}...{% endif %}</p>
+                    
+                    <div class="result-actions">
+                        <button class="btn btn-sm btn-primary" onclick="playTrack('{{ track.id }}', '{{ track.title }}', '{{ track.artist }}')">
+                            <i class="fas fa-play me-1"></i>Play
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="addToFavorites('{{ track.id }}', '{{ track.title }}', '{{ track.artist }}', '{{ track.thumbnail }}')">
+                            <i class="far fa-heart me-1"></i>Like
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="addToPlaylist('{{ track.id }}')">
+                            <i class="fas fa-plus me-1"></i>Add
+                        </button>
+                        <div class="dropdown d-inline">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="shareTrack('{{ track.id }}')">
+                                    <i class="fas fa-share me-2"></i>Share
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="addToQueue('{{ track.id }}')">
+                                    <i class="fas fa-list-ul me-2"></i>Add to queue
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="viewArtist('{{ track.artist }}')">
+                                    <i class="fas fa-user me-2"></i>View artist
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Load More Button -->
+        <div class="load-more-section text-center mt-5">
+            <button class="btn btn-outline-primary btn-lg" onclick="loadMoreResults()">
+                <i class="fas fa-arrow-down me-2"></i>Load More Results
+            </button>
+        </div>
+        {% else %}
+        <!-- No Results -->
+        <div class="no-results">
+            <div class="no-results-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h4>No results found</h4>
+            <p>We couldn't find any music matching "<strong>{{ query }}</strong>"</p>
+            <ul class="suggestions">
+                <li>Check your spelling</li>
+                <li>Try different keywords</li>
+                <li>Use more general terms</li>
+                <li>Try searching for the artist name</li>
+            </ul>
+            <div class="suggested-searches">
+                <h6>Try these popular searches:</h6>
+                <div class="suggested-tags">
+                    <a href="{{ url_for('search', q='pop music') }}" class="tag">Pop</a>
+                    <a href="{{ url_for('search', q='rock music') }}" class="tag">Rock</a>
+                    <a href="{{ url_for('search', q='hip hop') }}" class="tag">Hip Hop</a>
+                    <a href="{{ url_for('search', q='electronic music') }}" class="tag">Electronic</a>
+                    <a href="{{ url_for('search', q='jazz music') }}" class="tag">Jazz</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <!-- Search Suggestions -->
+    <div class="search-suggestions">
+        <div class="popular-searches">
+            <h4><i class="fas fa-fire me-2"></i>Popular Searches</h4>
+            <div class="search-tags">
+                <a href="{{ url_for('search', q='trending music 2024') }}" class="search-tag">
+                    <i class="fas fa-chart-line me-1"></i>Trending Music 2024
+                </a>
+                <a href="{{ url_for('search', q='pop hits') }}" class="search-tag">
+                    <i class="fas fa-music me-1"></i>Pop Hits
+                </a>
+                <a href="{{ url_for('search', q='rock classics') }}" class="search-tag">
+                    <i class="fas fa-guitar me-1"></i>Rock Classics
+                </a>
+                <a href="{{ url_for('search', q='chill music') }}" class="search-tag">
+                    <i class="fas fa-leaf me-1"></i>Chill Music
+                </a>
+                <a href="{{ url_for('search', q='workout music') }}" class="search-tag">
+                    <i class="fas fa-dumbbell me-1"></i>Workout Music
+                </a>
+                <a href="{{ url_for('search', q='study music') }}" class="search-tag">
+                    <i class="fas fa-book me-1"></i>Study Music
+                </a>
+            </div>
+        </div>
+
+        <div class="genre-categories mt-5">
+            <h4><i class="fas fa-th-large me-2"></i>Browse by Genre</h4>
+            <div class="genre-grid">
+                <div class="genre-card genre-pop">
+                    <div class="genre-icon"><i class="fas fa-star"></i></div>
+                    <h5>Pop</h5>
+                    <a href="{{ url_for('search', q='pop music') }}" class="stretched-link"></a>
+                </div>
+                <div class="genre-card genre-rock">
+                    <div class="genre-icon"><i class="fas fa-guitar"></i></div>
+                    <h5>Rock</h5>
+                    <a href="{{ url_for('search', q='rock music') }}" class="stretched-link"></a>
+                </div>
+                <div class="genre-card genre-hiphop">
+                    <div class="genre-icon"><i class="fas fa-microphone"></i></div>
+                    <h5>Hip Hop</h5>
+                    <a href="{{ url_for('search', q='hip hop') }}" class="stretched-link"></a>
+                </div>
+                <div class="genre-card genre-electronic">
+                    <div class="genre-icon"><i class="fas fa-satellite-dish"></i></div>
+                    <h5>Electronic</h5>
+                    <a href="{{ url_for('search', q='electronic music') }}" class="stretched-link"></a>
+                </div>
+                <div class="genre-card genre-jazz">
+                    <div class="genre-icon"><i class="fas fa-saxophone"></i></div>
+                    <h5>Jazz</h5>
+                    <a href="{{ url_for('search', q='jazz music') }}" class="stretched-link"></a>
+                </div>
+                <div class="genre-card genre-classical">
+                    <div class="genre-icon"><i class="fas fa-music-note"></i></div>
+                    <h5>Classical</h5>
+                    <a href="{{ url_for('search', q='classical music') }}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-tips mt-5">
+            <h4><i class="fas fa-lightbulb me-2"></i>Search Tips</h4>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <i class="fas fa-user-music"></i>
+                    <h6>Search by Artist</h6>
+                    <p>Try "Ed Sheeran" or "Taylor Swift"</p>
+                </div>
+                <div class="tip-card">
+                    <i class="fas fa-music"></i>
+                    <h6>Search by Song</h6>
+                    <p>Enter song titles like "Shape of You"</p>
+                </div>
+                <div class="tip-card">
+                    <i class="fas fa-compact-disc"></i>
+                    <h6>Search by Album</h6>
+                    <p>Find albums like "25" or "folklore"</p>
+                </div>
+                <div class="tip-card">
+                    <i class="fas fa-tags"></i>
+                    <h6>Use Keywords</h6>
+                    <p>"Love songs" or "party music"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function playTrack(videoId, title, artist) {
+    window.location.href = `/player/${videoId}`;
+}
+
+function addToFavorites(videoId, title, artist, thumbnail) {
+    showNotification('Added to favorites', 'success');
+}
+
+function addToPlaylist(videoId) {
+    showNotification('Feature coming soon!', 'info');
+}
+
+function shareTrack(videoId) {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Check out this music!',
+            url: window.location.origin + `/player/${videoId}`
+        });
+    } else {
+        navigator.clipboard.writeText(window.location.origin + `/player/${videoId}`);
+        showNotification('Link copied to clipboard', 'success');
+    }
+}
+
+function addToQueue(videoId) {
+    showNotification('Added to queue', 'info');
+}
+
+function viewArtist(artist) {
+    window.location.href = `{{ url_for('search') }}?q=${encodeURIComponent(artist)}`;
+}
+
+function loadMoreResults() {
+    showNotification('Loading more results...', 'info');
+    // In a real app, this would load more results via AJAX
+}
+
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 80px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

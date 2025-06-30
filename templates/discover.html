@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}Discover - THE STYLE OF MUSIC{% endblock %}
+
+{% block content %}
+<div class="discover-page">
+    <!-- Discover Header -->
+    <div class="discover-header">
+        <h1><i class="fas fa-compass me-2"></i>Discover Music</h1>
+        <p class="text-muted">Explore new artists, genres, and trending music</p>
+    </div>
+
+    <!-- Trending Section -->
+    {% if trending %}
+    <section class="trending-section mb-5">
+        <div class="section-header">
+            <h2><i class="fas fa-fire text-danger me-2"></i>Trending Now</h2>
+            <p class="text-muted">What's hot in music right now</p>
+        </div>
+        
+        <div class="trending-carousel">
+            <div class="music-cards-scroll">
+                {% for track in trending %}
+                <div class="trending-card" data-video-id="{{ track.id }}">
+                    <div class="card-image">
+                        <img src="{{ track.thumbnail }}" alt="{{ track.title }}" loading="lazy">
+                        <div class="trending-badge">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="play-overlay">
+                            <button class="play-btn" onclick="playTrack('{{ track.id }}', '{{ track.title }}', '{{ track.artist }}')">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h6 class="track-title">{{ track.title[:40] }}{% if track.title|length > 40 %}...{% endif %}</h6>
+                        <p class="track-artist">{{ track.artist }}</p>
+                        <div class="track-stats">
+                            <span class="views">{{ track.view_count }} views</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Genre Sections -->
+    {% if genre_music %}
+    {% for genre, tracks in genre_music.items() %}
+    {% if tracks %}
+    <section class="genre-section mb-5">
+        <div class="section-header">
+            <h3><i class="fas fa-music me-2"></i>{{ genre.title() }} Music</h3>
+            <a href="{{ url_for('search', q=genre + ' music') }}" class="btn btn-outline-primary">View All</a>
+        </div>
+        
+        <div class="music-grid-small">
+            {% for track in tracks %}
+            <div class="music-card-small" data-video-id="{{ track.id }}">
+                <div class="card-image">
+                    <img src="{{ track.thumbnail }}" alt="{{ track.title }}" loading="lazy">
+                    <div class="play-overlay">
+                        <button class="play-btn" onclick="playTrack('{{ track.id }}', '{{ track.title }}', '{{ track.artist }}')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h6 class="track-title">{{ track.title[:30] }}{% if track.title|length > 30 %}...{% endif %}</h6>
+                    <p class="track-artist">{{ track.artist[:25] }}{% if track.artist|length > 25 %}...{% endif %}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <!-- Music Categories -->
+    <section class="categories-section mb-5">
+        <div class="section-header">
+            <h3><i class="fas fa-th-large me-2"></i>Browse by Genre</h3>
+            <p class="text-muted">Explore music by your favorite genres</p>
+        </div>
+        
+        <div class="genre-categories">
+            <div class="row g-4">
+                <div class="col-md-3 col-sm-6">
+                    <div class="genre-card genre-pop" onclick="exploreGenre('pop')">
+                        <div class="genre-overlay">
+                            <i class="fas fa-star"></i>
+                            <h5>Pop</h5>
+                            <p>Catchy melodies and mainstream hits</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="genre-card genre-rock" onclick="exploreGenre('rock')">
+                        <div class="genre-overlay">
+                            <i class="fas fa-guitar"></i>
+                            <h5>Rock</h5>
+                            <p>Powerful guitars and driving rhythms</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="genre-card genre-hiphop" onclick="exploreGenre('hip hop')">
+                        <div class="genre-overlay">
+                            <i class="fas fa-microphone"></i>
+                            <h5>Hip Hop</h5>
+                            <p>Rhythmic beats and lyrical flow</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="genre-card genre-electronic" onclick="exploreGenre('electronic')">
+                        <div class="genre-overlay">
+                            <i class="fas fa-satellite-dish"></i>
+                            <h5>Electronic</h5>
+                            <p>Synthesized sounds and digital beats</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="genre-card genre-jazz" onclick="exploreGenre('jazz')">
+                        <div class="genre-overlay">
+                            <i class="fas fa-saxophone"></i>
+                            <h5>Jazz</h5>
+                            <p>Smooth improvisation and swing</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="genre-card genre-classical" onclick="exploreGenre('classical')">
+                        <div class="genre-overlay">
+                            <i class="fas fa-music-note"></i>
+                            <h5>Classical</h5>
+                            <p>Orchestral masterpieces and elegance</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="genre-card genre-country" onclick="exploreGenre('country')">
+                        <div class="genre-overlay">
+                            <i class="fas fa-hat-cowboy"></i>
+                            <h5>Country</h5>
+                            <p>Heartfelt stories and acoustic guitars</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="genre-card genre-reggae" onclick="exploreGenre('reggae')">
+                        <div class="genre-overlay">
+                            <i class="fas fa-leaf"></i>
+                            <h5>Reggae</h5>
+                            <p>Laid-back rhythms and island vibes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mood Playlists -->
+    <section class="mood-section mb-5">
+        <div class="section-header">
+            <h3><i class="fas fa-heart me-2"></i>Music for Every Mood</h3>
+            <p class="text-muted">Find the perfect soundtrack for your current vibe</p>
+        </div>
+        
+        <div class="mood-grid">
+            <div class="mood-card mood-happy" onclick="exploreMood('happy')">
+                <div class="mood-icon">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <h5>Happy & Upbeat</h5>
+                <p>Feel-good songs to brighten your day</p>
+            </div>
+            <div class="mood-card mood-chill" onclick="exploreMood('chill')">
+                <div class="mood-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h5>Chill & Relax</h5>
+                <p>Mellow vibes for unwinding</p>
+            </div>
+            <div class="mood-card mood-energetic" onclick="exploreMood('energetic')">
+                <div class="mood-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h5>High Energy</h5>
+                <p>Pump up your workout or party</p>
+            </div>
+            <div class="mood-card mood-romantic" onclick="exploreMood('romantic')">
+                <div class="mood-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h5>Love & Romance</h5>
+                <p>Songs for special moments</p>
+            </div>
+            <div class="mood-card mood-focus" onclick="exploreMood('focus')">
+                <div class="mood-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h5>Focus & Study</h5>
+                <p>Instrumental tracks for concentration</p>
+            </div>
+            <div class="mood-card mood-nostalgic" onclick="exploreMood('nostalgic')">
+                <div class="mood-icon">
+                    <i class="fas fa-clock-rotate-left"></i>
+                </div>
+                <h5>Throwback</h5>
+                <p>Classic hits from the past</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Discover Features -->
+    <section class="features-section mb-5">
+        <div class="section-header">
+            <h3><i class="fas fa-magic me-2"></i>Discovery Features</h3>
+            <p class="text-muted">Personalized music discovery tools</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-radio"></i>
+                    </div>
+                    <h5>Smart Radio</h5>
+                    <p>Create endless playlists based on your favorite artists or songs</p>
+                    <button class="btn btn-primary btn-sm" onclick="startSmartRadio()">
+                        <i class="fas fa-play me-1"></i>Start Radio
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5>Trending Charts</h5>
+                    <p>See what's popular in your region and worldwide</p>
+                    <button class="btn btn-primary btn-sm" onclick="viewCharts()">
+                        <i class="fas fa-chart-bar me-1"></i>View Charts
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h5>Friend Activity</h5>
+                    <p>Discover what your friends are listening to</p>
+                    <button class="btn btn-primary btn-sm" onclick="viewFriendActivity()">
+                        <i class="fas fa-users me-1"></i>See Activity
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New Releases (Mock Section) -->
+    <section class="new-releases-section">
+        <div class="section-header">
+            <h3><i class="fas fa-sparkles me-2"></i>New Releases</h3>
+            <p class="text-muted">Fresh music from your favorite artists</p>
+        </div>
+        
+        <div class="empty-state-small">
+            <i class="fas fa-compact-disc"></i>
+            <p>New releases will appear here based on your listening history</p>
+            <a href="{{ url_for('search') }}" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Explore Music
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function playTrack(videoId, title, artist) {
+    window.location.href = `/player/${videoId}`;
+}
+
+function exploreGenre(genre) {
+    window.location.href = `{{ url_for('search') }}?q=${encodeURIComponent(genre + ' music')}`;
+}
+
+function exploreMood(mood) {
+    let searchTerm = '';
+    switch(mood) {
+        case 'happy':
+            searchTerm = 'happy upbeat music';
+            break;
+        case 'chill':
+            searchTerm = 'chill relaxing music';
+            break;
+        case 'energetic':
+            searchTerm = 'high energy workout music';
+            break;
+        case 'romantic':
+            searchTerm = 'romantic love songs';
+            break;
+        case 'focus':
+            searchTerm = 'instrumental focus music';
+            break;
+        case 'nostalgic':
+            searchTerm = 'classic throwback hits';
+            break;
+    }
+    window.location.href = `{{ url_for('search') }}?q=${encodeURIComponent(searchTerm)}`;
+}
+
+function startSmartRadio() {
+    showNotification('Smart Radio feature coming soon!', 'info');
+}
+
+function viewCharts() {
+    showNotification('Music charts feature coming soon!', 'info');
+}
+
+function viewFriendActivity() {
+    showNotification('Friend activity feature coming soon!', 'info');
+}
+
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 80px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 3000);
+}
+
+// Smooth horizontal scrolling for trending carousel
+document.addEventListener('DOMContentLoaded', function() {
+    const scrollContainers = document.querySelectorAll('.music-cards-scroll');
+    
+    scrollContainers.forEach(container => {
+        container.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                container.scrollLeft += e.deltaY;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

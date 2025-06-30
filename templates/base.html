@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}THE STYLE OF MUSIC{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-music"></i> THE STYLE OF MUSIC</h3>
+            <button class="btn btn-link d-md-none" id="sidebarToggle">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="{{ url_for('index') }}" class="menu-item {% if request.endpoint == 'index' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            
+            <a href="{{ url_for('search') }}" class="menu-item {% if request.endpoint == 'search' %}active{% endif %}">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            
+            <a href="{{ url_for('library') }}" class="menu-item {% if request.endpoint == 'library' %}active{% endif %}">
+                <i class="fas fa-book"></i>
+                <span>Your Library</span>
+            </a>
+            
+            <div class="menu-separator"></div>
+            
+            <a href="{{ url_for('playlists') }}" class="menu-item {% if request.endpoint == 'playlists' %}active{% endif %}">
+                <i class="fas fa-list"></i>
+                <span>Playlists</span>
+            </a>
+            
+            <a href="{{ url_for('discover') }}" class="menu-item {% if request.endpoint == 'discover' %}active{% endif %}">
+                <i class="fas fa-compass"></i>
+                <span>Discover</span>
+            </a>
+            
+            <a href="{{ url_for('profile') }}" class="menu-item {% if request.endpoint == 'profile' %}active{% endif %}">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="upgrade-card">
+                <i class="fas fa-crown"></i>
+                <h6>Go Premium</h6>
+                <p>Unlimited music, no ads</p>
+                <button class="btn btn-warning btn-sm">Upgrade</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Top Navigation Bar -->
+        <div class="top-nav">
+            <div class="nav-controls">
+                <button class="btn btn-link d-md-none" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="nav-buttons d-none d-md-flex">
+                    <button class="btn btn-outline-light btn-sm me-2" onclick="history.back()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-outline-light btn-sm" onclick="history.forward()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="search-container d-none d-md-block">
+                <form action="{{ url_for('search') }}" method="GET" class="search-form">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" name="q" class="form-control" placeholder="Search for music, artists, albums..." 
+                               value="{{ request.args.get('q', '') }}">
+                    </div>
+                </form>
+            </div>
+            
+            <div class="user-controls">
+                <button class="btn btn-outline-light btn-sm me-2">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+                        <li><a class="dropdown-item" href="#">Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#">Log out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Page Content -->
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Mini Player (always visible when playing) -->
+    <div class="mini-player d-none" id="miniPlayer">
+        <div class="mini-player-content">
+            <div class="track-info">
+                <img src="" alt="" class="track-thumbnail" id="miniTrackThumbnail">
+                <div class="track-details">
+                    <div class="track-title" id="miniTrackTitle">No track selected</div>
+                    <div class="track-artist" id="miniTrackArtist">-</div>
+                </div>
+            </div>
+            
+            <div class="player-controls">
+                <button class="btn btn-link" id="miniPrevBtn">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button class="btn btn-link play-pause-btn" id="miniPlayPauseBtn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="btn btn-link" id="miniNextBtn">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+            
+            <div class="player-actions">
+                <button class="btn btn-link" id="miniVolumeBtn">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button class="btn btn-link" id="miniFullPlayerBtn">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="miniProgressFill"></div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/player.js') }}"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Home - THE STYLE OF MUSIC{% endblock %}
+
+{% block content %}
+<div class="home-page">
+    <!-- Welcome Banner -->
+    <section class="welcome-banner">
+        <div class="banner-content">
+            <h1 class="display-4 fw-bold">Welcome to THE STYLE OF MUSIC</h1>
+            <p class="lead">Discover, play, and enjoy millions of songs from around the world</p>
+            <div class="banner-actions">
+                <a href="{{ url_for('search') }}" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-search me-2"></i>Start Exploring
+                </a>
+                <a href="{{ url_for('discover') }}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-compass me-2"></i>Discover Music
+                </a>
+            </div>
+        </div>
+        <div class="banner-visual">
+            <div class="music-waves">
+                <div class="wave wave-1"></div>
+                <div class="wave wave-2"></div>
+                <div class="wave wave-3"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions my-5">
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h5>Trending Now</h5>
+                    <p>Discover what's hot right now</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h5>Your Favorites</h5>
+                    <p>Quick access to loved tracks</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-list-ul"></i>
+                    </div>
+                    <h5>Playlists</h5>
+                    <p>Create and manage playlists</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-radio"></i>
+                    </div>
+                    <h5>Radio Stations</h5>
+                    <p>Tune into endless music</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Music -->
+    <section class="trending-section">
+        <div class="section-header">
+            <h2><i class="fas fa-fire text-danger me-2"></i>Trending Music</h2>
+            <a href="{{ url_for('discover') }}" class="btn btn-outline-primary">View All</a>
+        </div>
+
+        {% if trending_music %}
+        <div class="music-grid">
+            {% for track in trending_music %}
+            <div class="music-card" data-video-id="{{ track.id }}">
+                <div class="card-image">
+                    <img src="{{ track.thumbnail }}" alt="{{ track.title }}" loading="lazy">
+                    <div class="play-overlay">
+                        <button class="play-btn" onclick="playTrack('{{ track.id }}', '{{ track.title }}', '{{ track.artist }}')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="addToFavorites('{{ track.id }}', '{{ track.title }}', '{{ track.artist }}', '{{ track.thumbnail }}')" title="Add to Favorites">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <button class="action-btn" onclick="addToPlaylist('{{ track.id }}')" title="Add to Playlist">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h6 class="track-title">{{ track.title[:50] }}{% if track.title|length > 50 %}...{% endif %}</h6>
+                    <p class="track-artist">{{ track.artist }}</p>
+                    <div class="track-stats">
+                        <span class="views">
+                            <i class="fas fa-eye"></i>
+                            {{ track.view_count | default('Unknown') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-music"></i>
+            </div>
+            <h4>No trending music available</h4>
+            <p>Unable to load trending music at the moment. Please check your internet connection or try again later.</p>
+            <button class="btn btn-primary" onclick="location.reload()">
+                <i class="fas fa-refresh me-2"></i>Retry
+            </button>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Recently Played (Placeholder for future implementation) -->
+    <section class="recent-section mt-5">
+        <div class="section-header">
+            <h2><i class="fas fa-clock text-info me-2"></i>Continue Listening</h2>
+        </div>
+        
+        <div class="empty-state-small">
+            <i class="fas fa-headphones"></i>
+            <p>Start playing music to see your recent tracks here</p>
+            <a href="{{ url_for('search') }}" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Search Music
+            </a>
+        </div>
+    </section>
+
+    <!-- Music Categories -->
+    <section class="categories-section mt-5">
+        <div class="section-header">
+            <h2><i class="fas fa-th-large text-success me-2"></i>Browse by Mood</h2>
+        </div>
+        
+        <div class="category-grid">
+            <div class="category-card category-energetic">
+                <h5>Energetic</h5>
+                <p>High-energy tracks to pump you up</p>
+                <a href="{{ url_for('search', q='energetic music') }}" class="btn btn-light btn-sm">Explore</a>
+            </div>
+            <div class="category-card category-chill">
+                <h5>Chill & Relax</h5>
+                <p>Perfect for unwinding and relaxation</p>
+                <a href="{{ url_for('search', q='chill music') }}" class="btn btn-light btn-sm">Explore</a>
+            </div>
+            <div class="category-card category-focus">
+                <h5>Focus</h5>
+                <p>Instrumental tracks for concentration</p>
+                <a href="{{ url_for('search', q='instrumental focus music') }}" class="btn btn-light btn-sm">Explore</a>
+            </div>
+            <div class="category-card category-party">
+                <h5>Party</h5>
+                <p>Get the party started with these hits</p>
+                <a href="{{ url_for('search', q='party music') }}" class="btn btn-light btn-sm">Explore</a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function playTrack(videoId, title, artist) {
+    // Navigate to player page
+    window.location.href = `/player/${videoId}`;
+}
+
+function addToFavorites(videoId, title, artist, thumbnail) {
+    // Show success message for demo
+    showNotification('Added to favorites', 'success');
+}
+
+function addToPlaylist(videoId) {
+    // Show modal for playlist selection (demo)
+    showNotification('Feature coming soon!', 'info');
+}
+
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 80px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

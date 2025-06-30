@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}Your Library - THE STYLE OF MUSIC{% endblock %}
+
+{% block content %}
+<div class="library-page">
+    <!-- Library Header -->
+    <div class="library-header">
+        <h1><i class="fas fa-book me-2"></i>Your Library</h1>
+        <p class="text-muted">Your personal collection of music</p>
+        
+        <div class="library-actions">
+            <button class="btn btn-primary" onclick="createPlaylist()">
+                <i class="fas fa-plus me-2"></i>Create Playlist
+            </button>
+            <button class="btn btn-outline-primary" onclick="importMusic()">
+                <i class="fas fa-download me-2"></i>Import Music
+            </button>
+        </div>
+    </div>
+
+    <!-- Library Navigation -->
+    <div class="library-nav">
+        <ul class="nav nav-pills mb-4" id="libraryTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="recent-tab" data-bs-toggle="pill" data-bs-target="#recent" type="button" role="tab">
+                    <i class="fas fa-clock me-2"></i>Recently Played
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="favorites-tab" data-bs-toggle="pill" data-bs-target="#favorites" type="button" role="tab">
+                    <i class="fas fa-heart me-2"></i>Liked Songs
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="playlists-tab" data-bs-toggle="pill" data-bs-target="#playlists" type="button" role="tab">
+                    <i class="fas fa-list me-2"></i>Playlists
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="artists-tab" data-bs-toggle="pill" data-bs-target="#artists" type="button" role="tab">
+                    <i class="fas fa-user-music me-2"></i>Artists
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="albums-tab" data-bs-toggle="pill" data-bs-target="#albums" type="button" role="tab">
+                    <i class="fas fa-compact-disc me-2"></i>Albums
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Library Content -->
+    <div class="tab-content" id="libraryTabContent">
+        <!-- Recently Played -->
+        <div class="tab-pane fade show active" id="recent" role="tabpanel">
+            <div class="section-header">
+                <h3>Recently Played</h3>
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearHistory()">
+                    <i class="fas fa-trash me-1"></i>Clear All
+                </button>
+            </div>
+            
+            {% if recent_played %}
+            <div class="track-list">
+                <!-- Recent tracks would be displayed here -->
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h4>No recent activity</h4>
+                <p>Start listening to music to see your recently played tracks here</p>
+                <a href="{{ url_for('discover') }}" class="btn btn-primary">
+                    <i class="fas fa-compass me-2"></i>Discover Music
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Liked Songs -->
+        <div class="tab-pane fade" id="favorites" role="tabpanel">
+            <div class="section-header">
+                <h3>Liked Songs</h3>
+                <div class="view-options">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="playAllFavorites()">
+                        <i class="fas fa-play me-1"></i>Play All
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="shuffleFavorites()">
+                        <i class="fas fa-random me-1"></i>Shuffle
+                    </button>
+                </div>
+            </div>
+            
+            {% if favorites %}
+            <div class="track-list">
+                <!-- Favorite tracks would be displayed here -->
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="far fa-heart"></i>
+                </div>
+                <h4>No liked songs yet</h4>
+                <p>Songs you like will appear here. Start exploring and tap the heart icon on songs you love!</p>
+                <a href="{{ url_for('search') }}" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i>Find Music
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Playlists -->
+        <div class="tab-pane fade" id="playlists" role="tabpanel">
+            <div class="section-header">
+                <h3>Your Playlists</h3>
+                <button class="btn btn-primary btn-sm" onclick="createPlaylist()">
+                    <i class="fas fa-plus me-1"></i>New Playlist
+                </button>
+            </div>
+            
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-list-music"></i>
+                </div>
+                <h4>No playlists yet</h4>
+                <p>Create your first playlist to organize your favorite music</p>
+                <button class="btn btn-primary" onclick="createPlaylist()">
+                    <i class="fas fa-plus me-2"></i>Create Playlist
+                </button>
+            </div>
+        </div>
+
+        <!-- Artists -->
+        <div class="tab-pane fade" id="artists" role="tabpanel">
+            <div class="section-header">
+                <h3>Following</h3>
+                <p class="text-muted">Artists you follow</p>
+            </div>
+            
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h4>No followed artists</h4>
+                <p>Follow your favorite artists to get updates on their latest releases</p>
+                <a href="{{ url_for('discover') }}" class="btn btn-primary">
+                    <i class="fas fa-compass me-2"></i>Discover Artists
+                </a>
+            </div>
+        </div>
+
+        <!-- Albums -->
+        <div class="tab-pane fade" id="albums" role="tabpanel">
+            <div class="section-header">
+                <h3>Saved Albums</h3>
+                <p class="text-muted">Albums you've added to your library</p>
+            </div>
+            
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-compact-disc"></i>
+                </div>
+                <h4>No saved albums</h4>
+                <p>Save albums you love to access them quickly from your library</p>
+                <a href="{{ url_for('discover') }}" class="btn btn-primary">
+                    <i class="fas fa-compass me-2"></i>Browse Albums
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="library-stats mt-5">
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-music text-primary"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>0</h4>
+                        <p>Songs Played</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-heart text-danger"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>0</h4>
+                        <p>Liked Songs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-list text-success"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>0</h4>
+                        <p>Playlists</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock text-warning"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>0h</h4>
+                        <p>Listening Time</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Playlist Modal -->
+<div class="modal fade" id="createPlaylistModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Playlist</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createPlaylistForm">
+                    <div class="mb-3">
+                        <label for="playlistName" class="form-label">Playlist Name</label>
+                        <input type="text" class="form-control" id="playlistName" placeholder="My Awesome Playlist" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="playlistDescription" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="playlistDescription" rows="3" placeholder="Tell us about your playlist..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="playlistPublic">
+                            <label class="form-check-label" for="playlistPublic">
+                                Make this playlist public
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitPlaylist()">Create Playlist</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function createPlaylist() {
+    const modal = new bootstrap.Modal(document.getElementById('createPlaylistModal'));
+    modal.show();
+}
+
+function submitPlaylist() {
+    const name = document.getElementById('playlistName').value;
+    const description = document.getElementById('playlistDescription').value;
+    const isPublic = document.getElementById('playlistPublic').checked;
+    
+    if (!name.trim()) {
+        showNotification('Please enter a playlist name', 'error');
+        return;
+    }
+    
+    // Here you would send the data to the server
+    showNotification('Playlist created successfully!', 'success');
+    
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('createPlaylistModal'));
+    modal.hide();
+    document.getElementById('createPlaylistForm').reset();
+}
+
+function importMusic() {
+    showNotification('Import feature coming soon!', 'info');
+}
+
+function clearHistory() {
+    if (confirm('Are you sure you want to clear your listening history?')) {
+        showNotification('History cleared', 'success');
+    }
+}
+
+function playAllFavorites() {
+    showNotification('Play all favorites - coming soon!', 'info');
+}
+
+function shuffleFavorites() {
+    showNotification('Shuffle favorites - coming soon!', 'info');
+}
+
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 80px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}
